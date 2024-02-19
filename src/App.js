@@ -1,8 +1,17 @@
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
+function Square({ squareIndex, winnerSquaresIndexes, value, onSquareClick }) {
   return (
-    <button className='square' onClick={onSquareClick}>
+    <button
+      className={
+        squareIndex == winnerSquaresIndexes[0] ||
+        squareIndex == winnerSquaresIndexes[1] ||
+        squareIndex == winnerSquaresIndexes[2]
+          ? 'square winner'
+          : 'square'
+      }
+      onClick={onSquareClick}
+    >
       {value}
     </button>
   );
@@ -10,7 +19,7 @@ function Square({ value, onSquareClick }) {
 
 function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
+    if (winner || squares[i]) {
       return;
     }
 
@@ -25,19 +34,27 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
+  const { winner, winnerSquares } = calculateWinner(squares);
   let status;
 
   if (winner) {
     status = 'Winner: ' + winner;
-  } else {
+  } else if (squares.includes(null)) {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+  } else {
+    status = 'Draw';
   }
 
   const boardSize = 3;
 
   const renderSquare = (index) => (
-    <Square value={squares[index]} onSquareClick={() => handleClick(index)} />
+    <Square
+      key={index}
+      squareIndex={index}
+      winnerSquaresIndexes={winnerSquares}
+      value={squares[index]}
+      onSquareClick={() => handleClick(index)}
+    />
   );
 
   const renderBoardRow = (rowIndex) => (
@@ -150,12 +167,15 @@ function calculateWinner(squares) {
     [2, 4, 6],
   ];
 
+  let winnerSquares = [];
+
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      winnerSquares.push(a, b, c);
+      return { winner: squares[a], winnerSquares };
     }
   }
 
-  return null;
+  return { winner: null, winnerSquares };
 }
