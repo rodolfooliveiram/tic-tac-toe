@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { render } from 'react-dom';
 
 function Square({ value, onSquareClick }) {
   return (
@@ -64,9 +63,18 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+function ToggleButton({ isToggleActive, onToggleClick }) {
+  return (
+    <button onClick={onToggleClick}>
+      {isToggleActive ? 'Older moves' : 'Most recent moves'}
+    </button>
+  );
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isToggleActive, setIsToggleActive] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -80,11 +88,20 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  function handleToggleClick() {
+    setIsToggleActive(!isToggleActive);
+  }
+
+  const moves = history.map((_, move) => {
     let description;
+
+    if (isToggleActive) {
+      move = history.length - move - 1;
+    }
+
     if (move > 0 && move < history.length - 1) {
       description = 'Go to move #' + move;
-    } else if (move === history.length - 1 && move !== 0) {
+    } else if (move === history.length - 1 && move > 0) {
       description = 'You are at move #' + move;
     } else {
       description = 'Go to game start';
@@ -108,6 +125,13 @@ export default function Game() {
       </div>
       <div className='game-info'>
         <div>Moves' History</div>
+        <div>
+          <span>Sort: </span>
+          <ToggleButton
+            isToggleActive={isToggleActive}
+            onToggleClick={() => handleToggleClick()}
+          />
+        </div>
         <ol>{moves}</ol>
       </div>
     </div>
