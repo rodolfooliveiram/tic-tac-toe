@@ -31,7 +31,7 @@ function Board({ xIsNext, squares, onPlay }) {
       nextSquares[i] = 'O';
     }
 
-    onPlay(nextSquares);
+    onPlay(nextSquares, i);
   }
 
   const { winner, winnerSquares } = calculateWinner(squares);
@@ -88,17 +88,29 @@ function ToggleButton({ isToggleActive, onToggleClick }) {
   );
 }
 
+function RestartButton({ onRestartGame }) {
+  return (
+    <button className='restart' onClick={onRestartGame}>
+      Restart Game
+    </button>
+  );
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const [isToggleActive, setIsToggleActive] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
+  const [movesLocationHistory, setMovesLocationHistory] = useState([
+    Array(2).fill(null),
+  ]);
 
-  function handlePlay(nextSquares) {
+  function handlePlay(nextSquares, moveIndex) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    calculateMoveLocation(moveIndex);
   }
 
   function jumpTo(nextMove) {
@@ -109,6 +121,46 @@ export default function Game() {
     setIsToggleActive(!isToggleActive);
   }
 
+  function handleRestartGame() {
+    setHistory([Array(9).fill(null)]);
+    setCurrentMove(0);
+    setIsToggleActive(false);
+    setMovesLocationHistory([Array(2).fill(null)]);
+  }
+
+  function calculateMoveLocation(currentMoveIndex) {
+    let row, col;
+
+    if (currentMoveIndex <= 2) {
+      row = 1;
+    } else if (currentMoveIndex > 2 && currentMoveIndex <= 5) {
+      row = 2;
+    } else {
+      row = 3;
+    }
+
+    switch (currentMoveIndex) {
+      case 0:
+      case 3:
+      case 6:
+        col = 1;
+        break;
+      case 1:
+      case 4:
+      case 7:
+        col = 2;
+        break;
+      case 2:
+      case 5:
+      case 8:
+        col = 3;
+        break;
+    }
+
+    const nextLocationHistory = [...movesLocationHistory, [row, col]];
+    setMovesLocationHistory(nextLocationHistory);
+  }
+
   const moves = history.map((_, move) => {
     let description;
 
@@ -117,9 +169,23 @@ export default function Game() {
     }
 
     if (move > 0 && move < history.length - 1) {
-      description = 'Go to move #' + move;
+      description =
+        'Go to move #' +
+        move +
+        ' (' +
+        movesLocationHistory[move][0] +
+        ', ' +
+        movesLocationHistory[move][1] +
+        ')';
     } else if (move === history.length - 1 && move > 0) {
-      description = 'You are at move #' + move;
+      description =
+        'You are at move #' +
+        move +
+        ' (' +
+        movesLocationHistory[move][0] +
+        ', ' +
+        movesLocationHistory[move][1] +
+        ')';
     } else {
       description = 'Go to game start';
     }
@@ -139,9 +205,10 @@ export default function Game() {
     <div className='game'>
       <div className='game-board'>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <RestartButton onRestartGame={() => handleRestartGame()} />
       </div>
       <div className='game-info'>
-        <div>Moves' History</div>
+        <div className='moves-history'>Moves' History</div>
         <div>
           <span>Sort: </span>
           <ToggleButton

@@ -4,7 +4,7 @@
 
 body {
   font-family: sans-serif;
-  margin: 20px;
+  margin: 40px 20px;
   padding: 0;
 }
 
@@ -42,33 +42,33 @@ code {
   font-size: 1.2em;
 }
 
-ul {
+ul,
+ol {
   padding-inline-start: 20px;
+  margin-top: 24px;
+}
+
+li {
+  margin-bottom: 8px;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
-}
-
 .square {
   background: #fff;
   border: 1px solid #999;
   float: left;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 72px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
+  width: 72px;
 }
 
 .board-row:after {
@@ -77,18 +77,32 @@ body {
   display: table;
 }
 
-.status {
+.status,
+.moves-history {
+  font-weight: bold;
   margin-bottom: 10px;
 }
 .game {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.game-board {
+  /* grid-column: -1 / 1; */
+  display: grid;
+  justify-content: center;
+  margin-bottom: 32px;
 }
 
 .game-info {
   margin-left: 20px;
+  min-width: 240px;
 }
 
 .winner {
   background-color: springgreen;
+}
+
+.restart {
+  margin-top: 18px;
 }
